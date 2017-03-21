@@ -2,52 +2,46 @@ import Foundation
 import UIKit
 
 public class SineWaveView: UIView {
+    
+    var lineColor:UIColor = .white
+    
     var idleAmplitude:CGFloat = 0.0
     var phase:CGFloat = 0.0
     
-    var frequency:CGFloat = 1.5
+    var frequency:CGFloat = 2.5
     var dampingFactor:CGFloat = 0.86
     
     var waves:CGFloat = 4.0
     var waveWidth:CGFloat = 1.0
     
-    var amplitude:CGFloat = 1.2
+    public var amplitude:CGFloat = 1.2
     
     var dampingAmplitude:CGFloat = 1.0
     
-    var density:CGFloat = 5
+    var density:CGFloat = 7
     
-    var phaseShift:CGFloat = -0.15
+    public var phaseShift:CGFloat = -0.15
     
     var whiteValue:CGFloat = 1.0
     
     var oscillating:Bool = true
     
-    var maxAmplitude:CGFloat = 0.5
+    var maxAmplitude:CGFloat = 0.9
     
     var waveInsets:UIEdgeInsets = .zero
     
-    var leftDecorativeView:UIView? {
-        didSet {
-            if let leftDecorativeView = leftDecorativeView {
-                self.addSubview(leftDecorativeView)
-            } else {
-                oldValue?.removeFromSuperview()
-            }
-            setNeedsLayout()
+    public func update(level:CGFloat) {
+        if level > dampingAmplitude {
+            dampingAmplitude += (min(level, 1.0) - dampingAmplitude) / 4.0
+        } else if level < 0.01 {
+            dampingAmplitude *= dampingFactor
         }
+        
+        phase += phaseShift
+        amplitude = max(min(dampingAmplitude * 20, 1.0), idleAmplitude)
+        
+        refresh()
     }
-    var rightDecorativeView:UIView? {
-        didSet {
-            if let rightDecorativeView = rightDecorativeView {
-                self.addSubview(rightDecorativeView)
-            } else {
-                oldValue?.removeFromSuperview()
-            }
-            setNeedsLayout()
-        }
-    }
-    
     
     public override func draw(_ rect: CGRect) {
         let context = UIGraphicsGetCurrentContext()
@@ -75,8 +69,8 @@ public class SineWaveView: UIView {
             let normedAmplitude = (1.5 * progress - 0.5) * self.amplitude
             let multiplier = min(1.0 , (progress / 3.0 * 2.0) + (1.0 / 3.0))
             
-//            [[self.color colorWithAlphaComponent:multiplier * CGColorGetAlpha([UIColor whiteColor].CGColor)] set];
-            
+            lineColor.withAlphaComponent(multiplier).set()
+                    
             var x:CGFloat = 0
             
             while x < width + density {
@@ -101,7 +95,7 @@ public class SineWaveView: UIView {
     
     
     
-    private func refresh() {
+    public func refresh() {
         self.setNeedsDisplay()
     }
     
