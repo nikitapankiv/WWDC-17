@@ -3,22 +3,22 @@ import UIKit
 
 public class SineWaveView: UIView {
     
-    var lineColor:UIColor = .white
+    public var lineColor:UIColor = .white
     
     var idleAmplitude:CGFloat = 0.0
     var phase:CGFloat = 0.0
     
-    var frequency:CGFloat = 2.5
+    var frequency:CGFloat = 1.5
     var dampingFactor:CGFloat = 0.86
     
-    var waves:CGFloat = 4.0
-    var waveWidth:CGFloat = 1.0
+    var waves:CGFloat = 5.0
+    var waveWidth:CGFloat = 2.0
     
     public var amplitude:CGFloat = 1.2
     
     var dampingAmplitude:CGFloat = 1.0
     
-    var density:CGFloat = 7
+    var density:CGFloat = 8
     
     public var phaseShift:CGFloat = -0.15
     
@@ -26,7 +26,7 @@ public class SineWaveView: UIView {
     
     var oscillating:Bool = true
     
-    var maxAmplitude:CGFloat = 0.9
+    var maxAmplitude:CGFloat = 0.5
     
     var waveInsets:UIEdgeInsets = .zero
     
@@ -36,7 +36,7 @@ public class SineWaveView: UIView {
         } else if level < 0.01 {
             dampingAmplitude *= dampingFactor
         }
-        
+
         phase += phaseShift
         amplitude = max(min(dampingAmplitude * 20, 1.0), idleAmplitude)
         
@@ -51,8 +51,10 @@ public class SineWaveView: UIView {
         backgroundColor?.set() // Set background color
         UIRectFill(frame)
         
-        UIColor.white.set() // Line color
+        lineColor.set() // Line color
         frame = UIEdgeInsetsInsetRect(bounds, waveInsets)
+        
+        let colors = [Colors.red, Colors.orange, Colors.yellow, Colors.green, Colors.blue, Colors.violet]
         
         for i in 0...Int(waves) {
             let context = UIGraphicsGetCurrentContext()
@@ -63,14 +65,14 @@ public class SineWaveView: UIView {
             let width = frame.size.width
             let mid = width / 2.0
             
-            let maxAmplitude = halfheight * self.maxAmplitude - 4 // Modify 4
+            let maxAmplitude = halfheight * self.maxAmplitude - 4 //(self.maxAmplitude * 65) // Modify 4
             
             let progress = 1.0 - CGFloat(i) / waves
             let normedAmplitude = (1.5 * progress - 0.5) * self.amplitude
             let multiplier = min(1.0 , (progress / 3.0 * 2.0) + (1.0 / 3.0))
             
-            lineColor.withAlphaComponent(multiplier).set()
-                    
+            colors[i].withAlphaComponent(multiplier).set()
+            
             var x:CGFloat = 0
             
             while x < width + density {
@@ -87,19 +89,14 @@ public class SineWaveView: UIView {
                 }
                 x += density
             }
+            
             context?.strokePath()
+            
         }
         context?.restoreGState()
     }
     
-    
-    
-    
     public func refresh() {
         self.setNeedsDisplay()
     }
-    
-    
-    
-    
 }
