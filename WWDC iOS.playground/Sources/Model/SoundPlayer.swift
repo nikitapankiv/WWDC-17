@@ -76,6 +76,15 @@ public class PlaygroundPlayer {
     private var playingStack = [[Note]]()
     
     
+    public func setupPlayer(notes:[[Note]]) {
+        playingStack = notes
+        initPlayers(notes: playingStack)
+    }
+    
+    @objc public func play(`repeat`:Bool = false) {
+        playNotes(notes: playingStack, repeat:`repeat`)
+    }
+    
     public func playNotes(notes:[[Note]], `repeat`:Bool = false) {
         playingStack = notes
         initPlayers(notes: playingStack)
