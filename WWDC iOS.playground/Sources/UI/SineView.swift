@@ -24,11 +24,19 @@ public class SineWaveView: UIView {
     
     var whiteValue:CGFloat = 1.0
     
-    var oscillating:Bool = true
+    var oscillating:Bool = false
     
     var maxAmplitude:CGFloat = 0.5
     
     var waveInsets:UIEdgeInsets = .zero
+    
+    public let fps:TimeInterval = 55
+    
+    public var updateRate:TimeInterval {
+        get {
+            return 1.0 / fps
+        }
+    }
     
     public func update(level:CGFloat) {
         if level > dampingAmplitude {
@@ -39,6 +47,7 @@ public class SineWaveView: UIView {
 
         phase += phaseShift
         amplitude = max(min(dampingAmplitude * 20, 1.0), idleAmplitude)
+        //amplitude = max(level, idleAmplitude)
         
         refresh()
     }

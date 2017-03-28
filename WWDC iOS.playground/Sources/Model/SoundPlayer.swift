@@ -44,6 +44,7 @@ public struct Note {
         case G
         case A
         case C
+        case B
         
         public func fileName() -> String {
             switch self {
@@ -59,6 +60,8 @@ public struct Note {
                 return "A"
             case .C:
                 return "C"
+            case .B:
+                return "B"
             }
         }
     }
@@ -72,9 +75,17 @@ public class PlaygroundPlayer {
     fileprivate var players = [String:AVAudioPlayer]()
     private var runLoopTimer:Timer?
     
-    private var playTime:TimeInterval = 1
+    private var playTime:TimeInterval = 1.0
     private var playingStack = [[Note]]()
     
+    
+    public var isPlaying:Bool {
+        get {
+            return players.reduce(0, { (result, object) -> Int in
+                return result + (object.value.isPlaying ? 1 : 0)
+            }) != 0
+        }
+    }
     
     public func setupPlayer(notes:[[Note]]) {
         playingStack = notes
@@ -87,12 +98,20 @@ public class PlaygroundPlayer {
     
     public func playNotes(notes:[[Note]], `repeat`:Bool = false) {
         playingStack = notes
-        initPlayers(notes: playingStack)
         
         self.runLoopTimer = Timer.scheduledTimer(withTimeInterval: playTime, repeats: true) { (timer) in
             if let players = self.playingStack.first {
                 print("Playing \(players)")
-                players.forEach({self.players[$0.filename()]?.play()})
+                players.forEach({ (note) in
+                    if let player = self.players[note.filename()] {
+                        if player.isPlaying {
+                            player.currentTime = 0.0
+                        }
+                        player.play()
+                    }
+                })
+                
+                //players.forEach({self.players[$0.filename()]?.play()})
                 self.playingStack = Array(self.playingStack.dropFirst())
             } else {
                 if `repeat` {
@@ -116,20 +135,6 @@ public class PlaygroundPlayer {
         
         print("Players initialized")
     }
-
-//    public func playNote(note:Note) {
-//        if let player = players[note.filename()] {
-//            player.play()
-//        } else {
-//            if let player = createPlayer(fileName: note.filename()) {
-//                self.players[note.filename()] = player
-//                playNote(note: note)
-//            } else {
-//                return
-//            }
-//        }
-//    }
-    
     private func createPlayer(fileName:String) -> AVAudioPlayer? {
         if let path = Bundle.main.path(forResource: fileName, ofType: "wav"), let url = URL(string:path) {
             if let player = try? AVAudioPlayer(contentsOf: url) {
