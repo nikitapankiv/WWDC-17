@@ -21,8 +21,8 @@ In this playground, we want to create a melody, so, melody is a _sequence_ of so
  `let sound2 = Sound(instrument: Sound.Instrument.piano, tone: Sound.Tone.F)`\
  `let sounds = [sound1, sound2]`
 */
-// Create some more `Sound`s
-// let sounds:[Sound] = [simpleSound, <#yourSounds#>]
+// let secondSimpleSound = <#Sound#>
+// let sounds:[Sound] = [simpleSound, secondSimpleSound]
 /*:
  Now, you are accustomed to basic sound theory and you are ready to **play**! \
  [Yes!](@next)

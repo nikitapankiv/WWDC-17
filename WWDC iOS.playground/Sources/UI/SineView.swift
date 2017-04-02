@@ -2,24 +2,24 @@ import Foundation
 import UIKit
 
 public class SineWaveView: UIView {
-    private var idleAmplitude:CGFloat = 0.3
-    var phase:CGFloat = 0.0
-    
-    var frequency:CGFloat = 1.5
-    var dampingFactor:CGFloat = 0.86
-    
-    var waves:Int = 6
-    var waveWidth:CGFloat = 2.0
-    
     public var amplitude:CGFloat = 0.2
     
-    var dampingAmplitude:CGFloat = 1.0
+    private var idleAmplitude:CGFloat = 0.3
+    private var phase:CGFloat = 0.0
     
-    var density:CGFloat = 8
+    private var frequency:CGFloat = 1.5
+    private var dampingFactor:CGFloat = 0.86
+    
+    private var waves:Int = 6
+    private var waveWidth:CGFloat = 2.0
+    
+    private var dampingAmplitude:CGFloat = 1.0
+    
+    private var density:CGFloat = 8
     
     public var phaseShift:CGFloat = -0.15
     
-    var maxAmplitude:CGFloat = 0.4
+    private var maxAmplitude:CGFloat = 0.4
     
     private let fps:TimeInterval = 55
     
