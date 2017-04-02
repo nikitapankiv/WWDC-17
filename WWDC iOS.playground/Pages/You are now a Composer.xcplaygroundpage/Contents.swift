@@ -17,7 +17,7 @@ PlaygroundPage.current.needsIndefiniteExecution = true
 */
 // let rest = Sound(instrument: Sound.Instrument.piano, tone: <#Sound.Tone.none#>)
 // let sounds = [sound1, rest, <#your unique sounds#>]
-// let soundPlayer = SoundPlayer(sounds: [<#notesArray#>])
+// let soundPlayer = SoundPlayer(sounds: [sounds])
 /*:
  Now let's make our music *Swift-ier* :) \
  We will use `map()` function to combine our `instrument` and `tunes` \
@@ -32,8 +32,5 @@ PlaygroundPage.current.needsIndefiniteExecution = true
 // let instrument = <#Sound.Instrument#>
 // let tunes:[Sound.Tone] = [.C, .D, <#continue...#>]
 // let sounds:[Sound] = tunes.map({Sound(instrument: instrument, tone: $0)})
-// let player = SoundPlayer(sounds: sounds, repeats:<#idono#>)
-// PlaygroundPlayer.shared.setup(withPlayers: [player])
-
 //:## Congratulations!
 //:Now you are a real **music composer**! Have fun __*Playing*__ with sequence of `Sound.Tone`'s, changing the `Sound.Instrument`'s of even __mixing them up together__!
