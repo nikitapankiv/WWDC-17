@@ -1,83 +1,54 @@
 import Foundation
 import AVFoundation
 
-public struct Sound {
-    let note:Note
-    let len:Length
+public class PlaygroundPlayer {
+    public static let shared = PlaygroundPlayer()
     
-    public init(note:Note, len:Length) {
-        self.note = note
-        self.len = len
-    }
+    private var players = [SoundPlayer]()
     
-    public enum Length {
-        case short
-        case medium
-        case long
-    }
-}
-
-public struct Note {
-    let instrument:Instrument
-    let tone:Tone
-    
-    public init(instrument:Instrument, tone:Tone) {
-        self.instrument = instrument
-        self.tone = tone
-    }
-    
-    public func filename() -> String {
-        return tone.fileName()
-    }
-    
-    public enum Instrument {
-        case piano
-        case flute
-        case ocarina
-        case pad
-    }
-    
-    public enum Tone {
-        case D
-        case E
-        case F
-        case G
-        case A
-        case C
-        case B
-        
-        public func fileName() -> String {
-            switch self {
-            case .D:
-                return "D"
-            case .E:
-                return "E"
-            case .F:
-                return "F"
-            case .G:
-                return "G"
-            case .A:
-                return "A"
-            case .C:
-                return "C"
-            case .B:
-                return "B"
-            }
+    public var isPlaying:Bool {
+        get {
+            return players.reduce(0, { (result, object) -> Int in
+                return result + (object.isPlaying ? 1 : 0)
+            }) != 0
         }
     }
     
-    public static var none:Note?
+    public var currentAmplitude:CGFloat {
+        get {
+            return isPlaying ? 0.7 : 0.0
+        }
+    }
+    
+    public func setup(withPlayers players:[SoundPlayer]) {
+        self.players = players
+    }
+    
+    public func play() {
+        players.forEach({$0.play()})
+    }
+    
+    public func stop() {
+        players.forEach({$0.stop()})
+    }
+    
 }
 
-
-public class PlaygroundPlayer {
-    public static let shared = PlaygroundPlayer()
-    fileprivate var players = [String:AVAudioPlayer]()
+public class SoundPlayer {
+    
+    private var players = [String:AVAudioPlayer]()
     private var runLoopTimer:Timer?
     
-    private var playTime:TimeInterval = 1.0
-    private var playingStack = [[Note]]()
+    private var playingStack = [[Sound]]()
     
+    private var playTime:TimeInterval = 0.5
+    private var repeats:Bool
+    
+    public init(sounds:[Sound], repeats:Bool = false) {
+        self.repeats = repeats
+        
+        setupPlayer(sounds: sounds)
+    }
     
     public var isPlaying:Bool {
         get {
@@ -87,35 +58,57 @@ public class PlaygroundPlayer {
         }
     }
     
-    public func setupPlayer(notes:[[Note]]) {
-        playingStack = notes
-        initPlayers(notes: playingStack)
+    public func play() {
+        playSounds(sounds: playingStack)
     }
     
-    @objc public func play(`repeat`:Bool = false) {
-        playNotes(notes: playingStack, repeat:`repeat`)
+    public func stop() {
+        runLoopTimer?.invalidate()
+        players.forEach({$0.value.stop()})
+    }
+
+    //MARK: - Setup
+    
+    private func setupPlayer(sounds:[[Sound]]) {
+        playingStack = sounds
+        initPlayers(sounds: playingStack)
     }
     
-    public func playNotes(notes:[[Note]], `repeat`:Bool = false) {
-        playingStack = notes
+    private func setupPlayer(sounds:[Sound]) {
+        let morphedNotes = sounds.map({[$0]})
+        setupPlayer(sounds: morphedNotes)
+        
+    }
+    
+    //MARK: - Playing
+    
+    private func playSounds(sounds:[[Sound]]) {
+        var playingSounds = playingStack
         
         self.runLoopTimer = Timer.scheduledTimer(withTimeInterval: playTime, repeats: true) { (timer) in
-            if let players = self.playingStack.first {
-                print("Playing \(players)")
-                players.forEach({ (note) in
-                    if let player = self.players[note.filename()] {
+            
+            let play:(([Sound])->Void) = { (sounds) in
+                sounds.forEach({ (sound) in
+                    if let player = self.players[sound.filename()] {
                         if player.isPlaying {
                             player.currentTime = 0.0
                         }
                         player.play()
                     }
                 })
-                
-                //players.forEach({self.players[$0.filename()]?.play()})
-                self.playingStack = Array(self.playingStack.dropFirst())
+            }
+            
+            if let players = playingSounds.first {
+                play(players)
+                playingSounds = Array(playingSounds.dropFirst())
             } else {
-                if `repeat` {
-                    self.playingStack = notes
+                if self.repeats {
+                    playingSounds = self.playingStack
+                    
+                    if let players = playingSounds.first {
+                        play(players)
+                        playingSounds = Array(playingSounds.dropFirst())
+                    }
                 } else {
                     timer.invalidate()
                 }
@@ -123,20 +116,22 @@ public class PlaygroundPlayer {
         }
     }
     
-    private func initPlayers(notes:[[Note]]) {
-        let notes = notes.flatMap({$0})
-        notes.forEach { (note) in
-            if players[note.filename()] == nil {
-                if let player = createPlayer(fileName: note.filename()) {
-                    players[note.filename()] = player
+    //MARK: - Support Methods
+    
+    private func initPlayers(sounds:[[Sound]]) {
+        self.playingStack = sounds
+        
+        sounds.flatMap({$0}).forEach { (sound) in
+            if sound.tone != Sound.Tone.none && players[sound.filename()] == nil {
+                if let player = createPlayer(sound: sound) {
+                    players[sound.filename()] = player
                 }
             }
         }
-        
-        print("Players initialized")
     }
-    private func createPlayer(fileName:String) -> AVAudioPlayer? {
-        if let path = Bundle.main.path(forResource: fileName, ofType: "wav"), let url = URL(string:path) {
+
+    private func createPlayer(sound:Sound) -> AVAudioPlayer? {
+        if let path = Bundle.main.path(forResource: sound.filename(), ofType: "wav"), let url = URL(string:path) {
             if let player = try? AVAudioPlayer(contentsOf: url) {
                 player.prepareToPlay()
                 
@@ -148,4 +143,3 @@ public class PlaygroundPlayer {
     }
     
 }
-

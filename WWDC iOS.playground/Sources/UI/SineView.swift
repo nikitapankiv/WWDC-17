@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 public class SineWaveView: UIView {
-    private var idleAmplitude:CGFloat = 0.2
+    private var idleAmplitude:CGFloat = 0.3
     var phase:CGFloat = 0.0
     
     var frequency:CGFloat = 1.5
@@ -21,7 +21,7 @@ public class SineWaveView: UIView {
     
     var maxAmplitude:CGFloat = 0.4
     
-    public let fps:TimeInterval = 55
+    private let fps:TimeInterval = 55
     
     public var updateRate:TimeInterval {
         get {
